@@ -50,7 +50,7 @@ void cycleToolsOn_RClick(int event, int x, int y, int flags, void* param) {
 	if (toolIndex == 0 && event == cv::EVENT_LBUTTONDOWN) {
 		eyeDropper(event, x, y, flags, param);
 	}
-	// elseif (toolIndex == 1 )
+	elseif (toolIndex == 1 && event == )
 }
 
 int main(int argc, char **argv)
