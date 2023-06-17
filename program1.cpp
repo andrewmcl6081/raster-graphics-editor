@@ -12,6 +12,18 @@ int toolIndex = -1;
 const std::vector<std::string> tools = {"Eyedropper", "Crop", "Pencil", "Paint Bucket", "Reset"};
 std::vector<size_t> bgr_val = {255,255,255};
 
+std::string print_bgr() {
+	std::string bgr_str = 
+		"(B: " + std::to_string(bgr_val[0]) + 
+		", " + 
+		"G: " + std::to_string(bgr_val[1]) + 
+		", " + 
+		"R: " + std::to_string(bgr_val[2]) + 
+		")";
+	
+	return bgr_str;
+}
+
 void eyeDropper(int event, int x, int y, int flags, void* param) {
 
 	cv::Mat imageIn = *(cv::Mat*)param;
@@ -20,7 +32,7 @@ void eyeDropper(int event, int x, int y, int flags, void* param) {
 	bgr_val[1] = imageIn.at<cv::Vec3b>(y,x)[1];
 	bgr_val[2] = imageIn.at<cv::Vec3b>(y,x)[2];
 
-	std::cout << "(B: " << bgr_val[0] << ", " << "G: " << bgr_val[1] << ", " << "R: " << bgr_val[2] << ")" << std::endl;
+	std::cout << print_bgr() << std::endl;
 }
 
 void cycleToolsOn_RClick(int event, int x, int y, int flags, void* param) {
@@ -31,20 +43,21 @@ void cycleToolsOn_RClick(int event, int x, int y, int flags, void* param) {
 		// multiple times
 		toolIndex = (toolIndex + 1) % 5;
 
-		std::cout << "Selected tool : " <<tools[toolIndex] << std::endl;
+		std::cout << "Selected tool : " << tools[toolIndex] << std::endl;
 	}
 
 
-	if(toolIndex == 0 && event == cv::EVENT_LBUTTONDOWN) {
+	if (toolIndex == 0 && event == cv::EVENT_LBUTTONDOWN) {
 		eyeDropper(event, x, y, flags, param);
 	}
+	// elseif (toolIndex == 1 )
 }
 
 int main(int argc, char **argv)
 {
 
     // validate and parse the command line arguments
-    if(argc != 2)
+    if (argc != 2)
     {
 		std::cout << "USAGE: " << argv[0] << " " << "<image_path>" << std::endl;
         return 0;
