@@ -10,7 +10,7 @@ struct dataStruct {
 };
 
 
-void eyeDropper(int event, int x, int y, int flags, void* param);
+//void eyeDropper(int event, int x, int y, int flags, void* param);
 void toolsEvent(int event, int x, int y, int flags, void* param);
 std::string print_bgr();
 
@@ -48,13 +48,13 @@ int main(int argc, char **argv)
 		}
 
 		// Initialize our struct to manage image data
-		dataStruct imgData;
-		imgData.image = &imageIn;
-		imgData.needsUpdate = false;
+		// dataStruct imgData;
+		// imgData.image = &imageIn;
+		// imgData.needsUpdate = false;
 
 
 		cv::imshow(windowName, imageIn);
-		cv::setMouseCallback(windowName, toolsEvent, &imgData);
+		cv::setMouseCallback(windowName, toolsEvent, &imageIn);
 		cv::waitKey();
 
     }
@@ -63,21 +63,15 @@ int main(int argc, char **argv)
 
 void toolsEvent(int event, int x, int y, int flags, void* param) {
 
-	std::cout << "in func" << std::endl;
+	//std::cout << "in func" << std::endl;
+
+	cv::Mat* imageIn_ptr = (cv::Mat*)param;
 
 	// Pointer to the struct created in main
-	dataStruct* imgData = static_cast<dataStruct*>(param);
+	// dataStruct* imgData = static_cast<dataStruct*>(param);
 
-	// pointer to the original imageIn
-	cv::Mat* image_ptr = imgData->image;
-
-
-	// Check if we need to update the image from cropping
-	// if(imgData->needsUpdate == true) {
-	// 	std::cout << "we need to update the window" << std::endl;
-	// 	cv::imshow(windowName, *image);
-	// 	imgData->needsUpdate = false;
-	// }
+	// // pointer to the original imageIn
+	// cv::Mat* image_ptr = imgData->image;
 
 	if(event == cv::EVENT_RBUTTONDOWN) {
 		// on event, select first tool and ensure we cycle through tools
@@ -88,9 +82,9 @@ void toolsEvent(int event, int x, int y, int flags, void* param) {
 	}
 	else if (toolIndex == 0 && event == cv::EVENT_LBUTTONDOWN) {
 
-		bgr_val[0] = image_ptr->at<cv::Vec3b>(y,x)[0];
-		bgr_val[1] = image_ptr->at<cv::Vec3b>(y,x)[1];
-		bgr_val[2] = image_ptr->at<cv::Vec3b>(y,x)[2];
+		bgr_val[0] = imageIn_ptr->at<cv::Vec3b>(y,x)[0];
+		bgr_val[1] = imageIn_ptr->at<cv::Vec3b>(y,x)[1];
+		bgr_val[2] = imageIn_ptr->at<cv::Vec3b>(y,x)[2];
 
 		std::cout << print_bgr() << std::endl;
 	}
@@ -109,29 +103,36 @@ void toolsEvent(int event, int x, int y, int flags, void* param) {
 
 			//std::cout << "p1 : " << p1 << " " << "p2 : " << p2 << std::endl;
 			
-			
-			// Grabbing ROI from original imageIn and updating imageIn with new ROI image
-			cv::Mat imageROI = (*image_ptr)(region);
-			*image_ptr = imageROI;
+			cv::Mat imageROI = (*imageIn_ptr)(region);
+
+			// imageIn_ptr holds the address of imageIn in the main func.
+			// dereferncing this pointer variable takes us to the address of where
+			// imageIn lives and we are modifying it with the newly modified ROI image
+			*imageIn_ptr = imageROI;
 			cv::imshow(windowName, imageROI);
 
+			//works as well
+			// Grabbing ROI from original imageIn and updating imageIn with new ROI image
+			// cv::Mat imageROI = (*image_ptr)(region);
+			// *image_ptr = imageROI;
+			// cv::imshow(windowName, imageROI);
+
 			point.clear();
+		}
+	}
+	else if (toolIndex == 2) {
+
+		if (flags == cv::EVENT_FLAG_LBUTTON) {
+			(*imageIn_ptr).at<cv::Vec3b>(y,x)[0] = bgr_val[0];
+			(*imageIn_ptr).at<cv::Vec3b>(y,x)[1] = bgr_val[1];
+			(*imageIn_ptr).at<cv::Vec3b>(y,x)[2] = bgr_val[2];
+			//std::cout << imageIn_ptr->at<cv::Vec3b>(y,x) << std::endl;
+
+			cv::imshow(windowName, *imageIn_ptr);
 		}
 	}	
 
 }
-
-
-// void eyeDropper(int event, int x, int y, int flags, void* param) {
-
-// 	cv::Mat imageIn = *(cv::Mat*)param;
-
-// 	bgr_val[0] = imageIn.at<cv::Vec3b>(y,x)[0];
-// 	bgr_val[1] = imageIn.at<cv::Vec3b>(y,x)[1];
-// 	bgr_val[2] = imageIn.at<cv::Vec3b>(y,x)[2];
-
-// 	std::cout << print_bgr() << std::endl;
-// }
 
 
 std::string print_bgr() {
