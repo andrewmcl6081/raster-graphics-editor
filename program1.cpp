@@ -130,7 +130,20 @@ void toolsEvent(int event, int x, int y, int flags, void* param) {
 
 			cv::imshow(windowName, *imageIn_ptr);
 		}
-	}	
+	}
+	else if (toolIndex == 3) {
+
+		if (event == cv::EVENT_LBUTTONDOWN) {
+			std::cout << "click clack" << std::endl;
+			std::cout << print_bgr() << std::endl;
+
+			cv::Point targetPoint(x,y);
+			cv::Scalar fillColor(bgr_val[0], bgr_val[1], bgr_val[2]);
+
+			cv::floodFill(*imageIn_ptr, targetPoint, fillColor);
+			cv::imshow(windowName, *imageIn_ptr);
+		}
+	}
 
 }
 
