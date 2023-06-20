@@ -2,4 +2,4 @@
 
 cmake .
 make
-./program1 test.png
+./main test.png
