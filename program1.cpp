@@ -9,11 +9,10 @@ struct dataStruct {
 	cv::Mat* image_clean;
 };
 
-
-//void eyeDropper(int event, int x, int y, int flags, void* param);
 void toolsEvent(int event, int x, int y, int flags, void* param);
 std::string print_bgr();
 
+// Globals
 const std::string windowName = "Raster Graphics";
 
 // No tool should be selected by default, this index maps to the tools vector
@@ -54,6 +53,7 @@ int main(int argc, char **argv)
 
 		cv::imshow(windowName, imageIn);
 		cv::setMouseCallback(windowName, toolsEvent, &imgData);
+		std::cout << "---Right click to cycle through available tools---" << std::endl;
 		cv::waitKey();
 
     }
@@ -66,12 +66,6 @@ void toolsEvent(int event, int x, int y, int flags, void* param) {
 
 	dataStruct* imgData = static_cast<dataStruct*>(param);
 	cv::Mat* image_ptr = imgData->image;
-
-	// Pointer to the struct created in main
-	// dataStruct* imgData = static_cast<dataStruct*>(param);
-
-	// // pointer to the original imageIn
-	// cv::Mat* image_ptr = imgData->image;
 
 	if(event == cv::EVENT_RBUTTONDOWN) {
 		// on event, select first tool and ensure we cycle through tools
@@ -92,16 +86,16 @@ void toolsEvent(int event, int x, int y, int flags, void* param) {
 		
 		if (event == cv::EVENT_LBUTTONDOWN) {
 
+			// Save point of initial click
 			point.push_back(x);
 			point.push_back(y);
 		}
 		else if (event == cv::EVENT_LBUTTONUP) {
 
+			// Save point of release and define region using the two points
 			cv::Point p1(point[0], point[1]);
 			cv::Point p2(x,y);
 			cv::Rect region(p1,p2);
-
-			//std::cout << "p1 : " << p1 << " " << "p2 : " << p2 << std::endl;
 			
 			cv::Mat imageROI = (*image_ptr)(region);
 
@@ -110,12 +104,6 @@ void toolsEvent(int event, int x, int y, int flags, void* param) {
 			// imageIn lives and we are modifying it with the newly modified ROI image
 			*image_ptr = imageROI;
 			cv::imshow(windowName, *image_ptr);
-
-			//works as well
-			// Grabbing ROI from original imageIn and updating imageIn with new ROI image
-			// cv::Mat imageROI = (*image_ptr)(region);
-			// *image_ptr = imageROI;
-			// cv::imshow(windowName, imageROI);
 
 			point.clear();
 		}
@@ -126,7 +114,6 @@ void toolsEvent(int event, int x, int y, int flags, void* param) {
 			image_ptr->at<cv::Vec3b>(y,x)[0] = bgr_val[0];
 			image_ptr->at<cv::Vec3b>(y,x)[1] = bgr_val[1];
 			image_ptr->at<cv::Vec3b>(y,x)[2] = bgr_val[2];
-			//std::cout << imageIn_ptr->at<cv::Vec3b>(y,x) << std::endl;
 
 			cv::imshow(windowName, *image_ptr);
 		}
@@ -134,7 +121,6 @@ void toolsEvent(int event, int x, int y, int flags, void* param) {
 	else if (toolIndex == 3) {
 
 		if (event == cv::EVENT_LBUTTONDOWN) {
-			std::cout << "click clack" << std::endl;
 			std::cout << print_bgr() << std::endl;
 
 			cv::Point targetPoint(x,y);
@@ -147,6 +133,9 @@ void toolsEvent(int event, int x, int y, int flags, void* param) {
 	else if (toolIndex == 4) {
 
 		if(event == cv::EVENT_LBUTTONDBLCLK) {
+
+			// Grab clean image Mat from struct, make a clone and set it to display
+			// always ensuring image_clean remains untouched
 			cv::Mat image_clean_temp = *(imgData->image_clean);
 			*image_ptr = image_clean_temp.clone();
 			
